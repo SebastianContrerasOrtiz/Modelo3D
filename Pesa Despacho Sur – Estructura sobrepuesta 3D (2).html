@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pesa Despacho Sur – Estructura sobrepuesta 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --navy:#0B254D; --blue:#155EAA; --orange:#F28020;
+  --bg:#EEF3F9; --panel:#FFFFFF; --ink:#0B254D; --muted:#4A5D78;
+  --line:#C9D6E6; --chip:#E3ECF7; --scene:#DCE6F1; --tagbg:#FFFFFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1628; --panel:#10213A; --ink:#E8EEF7; --muted:#9FB2CC;
+    --line:#23395A; --chip:#18304F; --scene:#0E1D33; --tagbg:#10213A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1628; --panel:#10213A; --ink:#E8EEF7; --muted:#9FB2CC;
+  --line:#23395A; --chip:#18304F; --scene:#0E1D33; --tagbg:#10213A;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Barlow,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 380px;height:100%}
+.stage{position:relative;overflow:hidden;background:var(--scene);min-height:0}
+#c{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#c:active{cursor:grabbing}
+.panel{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;padding:26px 24px 32px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:var(--muted);font-weight:600;font-size:13px}
+.brand i{display:block;width:26px;height:6px;background:var(--orange)}
+h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-size:32px;line-height:1.05;margin:0 0 10px;font-weight:700;color:var(--ink)}
+.lead{color:var(--muted);margin:0 0 20px;max-width:60ch}
+h2{font-size:15px;margin:22px 0 10px;font-weight:700;color:var(--blue)}
+:root[data-theme="dark"] h2{color:#7FB2EA}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) h2{color:#7FB2EA}}
+ol.parts{list-style:none;margin:0;padding:0;counter-reset:p}
+ol.parts li{display:grid;grid-template-columns:26px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+ol.parts li:last-child{border-bottom:none}
+ol.parts b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;font-size:12.5px;font-weight:700}
+ol.parts span strong{display:block;font-weight:600}
+ol.parts span em{font-style:normal;color:var(--muted);font-size:13.5px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{color:var(--muted);padding-right:12px;width:46%}
+td:last-child{font-weight:600}
+.note{margin-top:18px;padding:12px 14px;background:var(--chip);border-left:4px solid var(--orange);font-size:13.5px}
+/* toolbars */
+.bar{position:absolute;left:14px;display:flex;flex-wrap:wrap;gap:6px;z-index:5}
+.bar.top{top:14px}
+.bar.bottom{bottom:14px}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(11,37,77,.12)}
+button{font:inherit;font-size:13.5px;font-weight:600;color:var(--ink);background:transparent;border:0;padding:8px 12px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+button[aria-pressed="true"]{background:var(--navy);color:#fff}
+:root[data-theme="dark"] button[aria-pressed="true"]{background:var(--blue)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button[aria-pressed="true"]{background:var(--blue)}}
+button:focus-visible{outline:3px solid var(--orange);outline-offset:-3px}
+.hint{position:absolute;right:14px;bottom:14px;font-size:12.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:6px 10px;border-radius:8px;z-index:5}
+/* 3D tags */
+#tags{position:absolute;inset:0;pointer-events:none;z-index:4}
+.tag{position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--orange);color:#fff;font-weight:700;font-size:12.5px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.dim{position:absolute;transform:translate(-50%,-50%);font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:600;font-size:14px;color:var(--navy);background:#fff;border:1.5px solid var(--orange);padding:1px 7px;border-radius:4px;white-space:nowrap}
+.hide{display:none!important}
+@media (max-width:880px){
+  .app{grid-template-columns:1fr;grid-template-rows:64vh auto;height:auto}
+  body{height:auto}
+  .panel{border-left:none;border-top:5px solid var(--orange)}
+  .hint{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="stage" id="stage">
+    <canvas id="c" aria-label="Modelo 3D de la pesa en estructura sobrepuesta"></canvas>
+    <div id="tags"></div>
+    <div class="bar top" role="toolbar" aria-label="Vistas">
+      <div class="seg">
+        <button data-view="iso" aria-pressed="true">Isométrica</button>
+        <button data-view="front" aria-pressed="false">Frontal</button>
+        <button data-view="side" aria-pressed="false">Lateral</button>
+        <button data-view="top" aria-pressed="false">Superior</button>
+      </div>
+    </div>
+    <div class="bar bottom" role="toolbar" aria-label="Capas">
+      <div class="seg">
+        <button data-toggle="pallet" aria-pressed="true">Pallet</button>
+        <button data-toggle="explode" aria-pressed="false">Despiece</button>
+        <button data-toggle="dims" aria-pressed="false">Cotas</button>
+        <button data-toggle="tags" aria-pressed="true">Componentes</button>
+      </div>
+    </div>
+    <div class="hint">Arrastra para girar · rueda o pellizco para acercar</div>
+  </div>
+
+  <aside class="panel">
+    <div class="brand"><i></i>Propal S.A. · Depto. Sala de Máquinas</div>
+    <h1>Pesa Despacho Sur en estructura sobrepuesta</h1>
+    <p class="lead">Opción B al foso: la pesa queda empotrada en un marco de acero apoyado y anclado sobre el piso existente, sin obra civil. Las celdas trabajan sobre una bandeja nivelada y el pallet entra centrado por guías que no tocan la plataforma.</p>
+
+    <h2>Componentes</h2>
+    <ol class="parts">
+      <li><b>1</b><span><strong>Bandeja base de acero</strong><em>PL 12 mm, 1.800 × 1.644 mm, nivelada con lainas y grout</em></span></li>
+      <li><b>2</b><span><strong>Anclajes químicos</strong><em>8 pernos M16 en las alas laterales</em></span></li>
+      <li><b>3</b><span><strong>Marco perimetral</strong><em>Ángulo L 100 × 100 × 10 mm, galvanizado, canto a ras de plataforma</em></span></li>
+      <li><b>4</b><span><strong>Plataforma de pesaje</strong><em>1.500 × 1.500 mm, plancha diamantada, capacidad referencial 3.000 kg</em></span></li>
+      <li><b>5</b><span><strong>Celdas de carga (4)</strong><em>Viga de corte inoxidable IP68 con apoyo oscilante, sobre placa base</em></span></li>
+      <li><b>6</b><span><strong>Holgura perimetral</strong><em>12 mm libres entre plataforma y marco</em></span></li>
+      <li><b>7</b><span><strong>Rampas de acceso (2)</strong><em>900 mm de largo, pendiente 7,7°, apernadas al marco</em></span></li>
+      <li><b>8</b><span><strong>Guías laterales en voladizo</strong><em>Paso libre 1.120 mm, con entrada abocinada; montadas al marco</em></span></li>
+      <li><b>9</b><span><strong>Silueta de centrado</strong><em>Pallet 1.000 × 1.200 mm pintado en naranja con marca central</em></span></li>
+      <li><b>10</b><span><strong>Caja de conexiones IP68</strong><em>Montada fuera del marco, cable en conduit hasta el indicador</em></span></li>
+      <li><b>11</b><span><strong>Indicador de peso</strong><em>LP7516 existente o reemplazo, en poste</em></span></li>
+      <li><b>12</b><span><strong>Ranuras de drenaje</strong><em>En el marco, para evacuar condensado y agua de lavado</em></span></li>
+    </ol>
+
+    <h2>Datos principales</h2>
+    <table>
+      <tr><td>Altura sobre piso</td><td>122 mm</td></tr>
+      <tr><td>Largo total con rampas</td><td>3.444 mm</td></tr>
+      <tr><td>Ancho total</td><td>1.800 mm</td></tr>
+      <tr><td>Pallet de diseño</td><td>1.000 × 1.200 mm, hasta 1.400 kg</td></tr>
+      <tr><td>Juego lateral del pallet</td><td>±60 mm</td></tr>
+      <tr><td>Despeje guía–plataforma</td><td>≈ 55 mm en vertical</td></tr>
+      <tr><td>Sentido de tránsito</td><td>Pasante, entrada y salida por rampas</td></tr>
+    </table>
+
+    <p class="note">Todas las piezas fijas (marco, rampas, guías) se apoyan en la bandeja o el piso. Ninguna toca la plataforma: si lo hicieran, absorberían parte del peso. Las dimensiones son de anteproyecto y deben validarse con el fabricante de la pesa y el espacio real del andén.</p>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+const stage=document.getElementById('stage');
+const canvas=document.getElementById('c');
+const tagsEl=document.getElementById('tags');
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputEncoding=THREE.sRGBEncoding;
+
+const scene=new THREE.Scene();
+function sceneColor(){return getComputedStyle(document.documentElement).getPropertyValue('--scene').trim()||'#DCE6F1';}
+scene.background=new THREE.Color(sceneColor());
+const mq=window.matchMedia('(prefers-color-scheme: dark)');
+if(mq.addEventListener) mq.addEventListener('change',()=>{scene.background=new THREE.Color(sceneColor());});
+
+const camera=new THREE.PerspectiveCamera(38,1,0.05,100);
+
+// ---------- lights ----------
+scene.add(new THREE.HemisphereLight(0xffffff,0x8090a0,0.75));
+const sun=new THREE.DirectionalLight(0xffffff,0.85);
+sun.position.set(3,6,4); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-4,right:4,top:4,bottom:-4,near:1,far:20});
+scene.add(sun);
+const fill=new THREE.DirectionalLight(0xbcd4ff,0.3); fill.position.set(-4,3,-3); scene.add(fill);
+
+// ---------- textures ----------
+function canvasTex(size,draw,rep){
+  const c=document.createElement('canvas'); c.width=c.height=size;
+  const g=c.getContext('2d'); draw(g,size);
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  if(rep) t.repeat.set(rep[0],rep[1]); t.anisotropy=4; t.encoding=THREE.sRGBEncoding; return t;
+}
+function diamond(base,hi){
+  return (g,s)=>{g.fillStyle=base;g.fillRect(0,0,s,s);g.fillStyle=hi;
+    const n=4,st=s/n;
+    for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+      g.save();g.translate(i*st+st/2,j*st+st/2);g.rotate(((i+j)%2?1:-1)*Math.PI/4);
+      g.beginPath();g.ellipse(0,0,st*0.32,st*0.08,0,0,Math.PI*2);g.fill();g.restore();}
+  };
+}
+const texPlate=canvasTex(256,diamond('#2457A8','#4F7FC9'),[6,6]);
+const texRamp=canvasTex(256,diamond('#8D98A6','#B4BEC9'),[6,4]);
+const texFloor=canvasTex(512,(g,s)=>{g.fillStyle='#A9AEB3';g.fillRect(0,0,s,s);
+  for(let k=0;k<9000;k++){const v=150+Math.random()*60|0;g.fillStyle=`rgba(${v},${v},${v+4},.35)`;g.fillRect(Math.random()*s,Math.random()*s,2,2);}
+  g.strokeStyle='rgba(80,80,80,.25)';g.lineWidth=2;g.beginPath();g.moveTo(s*0.5,0);g.lineTo(s*0.5,s);g.stroke();},[4,4]);
+const texCrate=canvasTex(256,(g,s)=>{g.fillStyle='#F4F6F8';g.fillRect(0,0,s,s);
+  g.strokeStyle='#B9C3CE';g.lineWidth=3;
+  for(let i=-s;i<2*s;i+=22){g.beginPath();g.moveTo(i,0);g.lineTo(i+s,s);g.stroke();g.beginPath();g.moveTo(i,s);g.lineTo(i+s,0);g.stroke();}
+  g.fillStyle='#E6EAEE';for(let y=0;y<s;y+=64)g.fillRect(0,y,s,8);},[2,6]);
+
+// ---------- materials ----------
+const M={
+  floor:new THREE.MeshStandardMaterial({map:texFloor,roughness:.95}),
+  tray:new THREE.MeshStandardMaterial({color:0x3C4654,roughness:.6,metalness:.5}),
+  galv:new THREE.MeshStandardMaterial({color:0x9AA6B3,roughness:.45,metalness:.7}),
+  yellow:new THREE.MeshStandardMaterial({color:0xF2C21B,roughness:.6}),
+  plate:new THREE.MeshStandardMaterial({map:texPlate,roughness:.5,metalness:.45}),
+  under:new THREE.MeshStandardMaterial({color:0x1C3F7A,roughness:.6,metalness:.4}),
+  ramp:new THREE.MeshStandardMaterial({map:texRamp,roughness:.5,metalness:.6,side:THREE.DoubleSide}),
+  cell:new THREE.MeshStandardMaterial({color:0xD5DCE3,roughness:.25,metalness:.9}),
+  dark:new THREE.MeshStandardMaterial({color:0x1E2329,roughness:.7}),
+  orange:new THREE.MeshStandardMaterial({color:0xF28020,roughness:.45,metalness:.2}),
+  paint:new THREE.MeshStandardMaterial({color:0xF28020,roughness:.8}),
+  box:new THREE.MeshStandardMaterial({color:0xC8CDD2,roughness:.6}),
+  pallet:new THREE.MeshStandardMaterial({color:0x2C6FD1,roughness:.6}),
+  crate:new THREE.MeshStandardMaterial({map:texCrate,roughness:.8}),
+  white:new THREE.MeshStandardMaterial({color:0xFAFAFA,roughness:.7}),
+  strap:new THREE.MeshStandardMaterial({color:0x13A36B,roughness:.5}),
+  bolt:new THREE.MeshStandardMaterial({color:0x6B737C,roughness:.4,metalness:.9}),
+  screen:new THREE.MeshStandardMaterial({color:0x9FD3F5,emissive:0x2B6A96,emissiveIntensity:.6})
+};
+
+function box(parent,w,h,d,mat,x,yb,z){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+  m.position.set(x,yb+h/2,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
+}
+function cyl(parent,r,h,mat,x,yb,z,seg){
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,seg||16),mat);
+  m.position.set(x,yb+h/2,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
+}
+
+// ---------- dimensions (m) ----------
+const T=0.012;            // tray thickness
+const TOP=0.122;          // platform & frame top
+const PL=1.5;             // platform size
+const GAP=0.012;          // perimeter gap
+const FW=0.06;            // frame leg width
+const IN=PL/2+GAP;        // inner half clear = 0.762
+const OUT=IN+FW;          // frame outer half = 0.822
+const TRX=0.90;           // tray half width in x (with anchor flange)
+const RL=0.9;             // ramp length
+
+// floor
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(14,14),M.floor);
+floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+
+const fixed=new THREE.Group(); scene.add(fixed);
+
+// 1 tray
+box(fixed,TRX*2,T,OUT*2,M.tray,0,0,0);
+// 2 anchors
+[-0.6,-0.2,0.2,0.6].forEach(z=>[-1,1].forEach(s=>{
+  cyl(fixed,0.016,0.018,M.bolt,s*0.865,T,z,6);
+  cyl(fixed,0.026,0.004,M.bolt,s*0.865,T,z,16);
+}));
+// 3 frame (angle legs)
+const fh=TOP-T;
+box(fixed,OUT*2,fh,FW,M.galv,0,T,  IN+FW/2);
+box(fixed,OUT*2,fh,FW,M.galv,0,T,-(IN+FW/2));
+box(fixed,FW,fh,IN*2,M.galv, IN+FW/2,T,0);
+box(fixed,FW,fh,IN*2,M.galv,-(IN+FW/2),T,0);
+// yellow paint on frame top edges along x sides
+box(fixed,FW,0.002,IN*2,M.yellow, IN+FW/2,TOP,0);
+box(fixed,FW,0.002,IN*2,M.yellow,-(IN+FW/2),TOP,0);
+// 12 drain slots (outer faces of x-side legs)
+[-0.45,0,0.45].forEach(z=>[-1,1].forEach(s=>{
+  box(fixed,0.004,0.025,0.12,M.dark,s*(OUT+0.001),T+0.005,z);
+}));
+// cell base plates on tray
+const CX=0.65;
+const cellPos=[[CX,CX],[-CX,CX],[CX,-CX],[-CX,-CX]];
+cellPos.forEach(([x,z])=>box(fixed,0.2,0.012,0.14,M.tray,x,T,z));
+
+// 5 load cells (fixed to base, platform rests on pins)
+const cells=new THREE.Group(); fixed.add(cells);
+cellPos.forEach(([x,z])=>{
+  box(cells,0.06,0.05,0.12,M.cell,x+(x>0?-0.05:0.05),T+0.012,z);   // mounting block
+  box(cells,0.16,0.04,0.055,M.cell,x,T+0.022,z);                       // beam
+  cyl(cells,0.018,0.025,M.bolt,x+(x>0?0.05:-0.05),T+0.062,z);         // rocker pin
+});
+
+// 7 ramps
+function makeRamp(){
+  const s=new THREE.Shape();
+  s.moveTo(0,0); s.lineTo(RL,0); s.lineTo(0,TOP-0.002); s.lineTo(0,0);
+  const g=new THREE.ExtrudeGeometry(s,{depth:PL+0.1,bevelEnabled:false});
+  g.rotateY(-Math.PI/2); g.translate((PL+0.1)/2,0,0);
+  const m=new THREE.Mesh(g,M.ramp); m.castShadow=true; m.receiveShadow=true;
+  const grp=new THREE.Group(); grp.add(m);
+  // yellow nose stripe
+  const stripe=new THREE.Mesh(new THREE.BoxGeometry(PL+0.1,0.004,0.06),M.yellow);
+  stripe.position.set(0,0.006,RL-0.05); stripe.rotation.x=-Math.atan(TOP/RL); grp.add(stripe);
+  return grp;
+}
+const rampA=makeRamp(); rampA.position.z=OUT; fixed.add(rampA);
+const rampB=makeRamp(); rampB.rotation.y=Math.PI; rampB.position.z=-OUT; fixed.add(rampB);
+
+// 8 guides (cantilever from posts on x-side frame legs)
+const guides=new THREE.Group(); fixed.add(guides);
+const GX=0.585, GY=0.205, GL=1.4;
+[-1,1].forEach(s=>{
+  [-0.5,0.5].forEach(z=>{
+    box(guides,0.06,0.20,0.06,M.orange,s*(IN+FW/2),TOP,z);                  // post
+    box(guides,(IN+FW/2)-GX+0.03,0.04,0.05,M.orange,s*((IN+FW/2+GX)/2),TOP+0.11,z); // arm
+  });
+  box(guides,0.05,0.05,GL,M.orange,s*GX,GY-0.025+0.0,0);                    // rail
+  [1,-1].forEach(e=>{                                                         // flared lead-ins
+    const len=0.42, ang=0.36;
+    const f=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.05,len),M.orange);
+    f.castShadow=true;
+    f.position.set(s*(GX+Math.sin(ang)*len/2), GY, e*(GL/2+Math.cos(ang)*len/2));
+    f.rotation.y=e*s*ang; guides.add(f);
+  });
+});
+
+// 10 junction box + conduit, 11 indicator
+box(fixed,0.05,0.04,0.12,M.galv,OUT+0.025,T+0.02,0.25);
+box(fixed,0.17,0.15,0.09,M.box,OUT+0.13,T+0.05,0.25);
+cyl(fixed,0.012,0.03,M.dark,OUT+0.13,T+0.2,0.25);
+const conduit=new THREE.Mesh(new THREE.CylinderGeometry(0.014,0.014,0.29,10),M.dark);
+conduit.rotation.z=Math.PI/2; conduit.position.set(1.18,0.03,0.25); conduit.castShadow=true; fixed.add(conduit);
+cyl(fixed,0.03,1.25,M.galv,1.32,0,0.25);
+box(fixed,0.25,0.004,0.25,M.galv,1.32,0,0.25);
+const ind=box(fixed,0.07,0.17,0.24,M.box,1.29,1.2,0.25);
+box(fixed,0.005,0.06,0.15,M.screen,1.252,1.29,0.25);
+
+// 4 platform (moves in explode)
+const plat=new THREE.Group(); scene.add(plat);
+box(plat,PL,0.008,PL,M.plate,0,TOP-0.008,0);
+box(plat,PL,0.03,0.06,M.under,0,TOP-0.038, PL/2-0.03);
+box(plat,PL,0.03,0.06,M.under,0,TOP-0.038,-(PL/2-0.03));
+box(plat,0.06,0.03,PL-0.12,M.under, PL/2-0.03,TOP-0.038,0);
+box(plat,0.06,0.03,PL-0.12,M.under,-(PL/2-0.03),TOP-0.038,0);
+[-0.25,0.25].forEach(x=>box(plat,0.05,0.03,PL-0.12,M.under,x,TOP-0.038,0));
+// load pads under platform over rocker pins
+cellPos.forEach(([x,z])=>box(plat,0.08,0.012,0.08,M.under,x+(x>0?0.05:-0.05),TOP-0.023,z));
+// 9 centering silhouette (1.0 x 1.2) + center cross
+const LW=0.025,Y=TOP+0.0005,SH=0.0015;
+box(plat,1.0,SH,LW,M.paint,0,Y, 0.6); box(plat,1.0,SH,LW,M.paint,0,Y,-0.6);
+box(plat,LW,SH,1.2,M.paint, 0.5,Y,0); box(plat,LW,SH,1.2,M.paint,-0.5,Y,0);
+box(plat,0.16,SH,LW,M.paint,0,Y,0); box(plat,LW,SH,0.16,M.paint,0,Y,0);
+
+// pallet + load
+const load=new THREE.Group(); plat.add(load);
+const PB=TOP;
+box(load,1.0,0.02,1.2,M.pallet,0,PB+0.125,0);
+[-0.44,0,0.44].forEach(x=>box(load,0.1,0.105,1.2,M.pallet,x,PB+0.02,0));
+box(load,1.0,0.02,1.2,M.pallet,0,PB,0);
+const stackY=PB+0.145, stackH=1.95;
+box(load,0.96,stackH,1.16,M.crate,0,stackY,0);
+[[-0.49,-0.59],[0.49,-0.59],[-0.49,0.59],[0.49,0.59]].forEach(([x,z])=>box(load,0.05,stackH,0.05,M.white,x,stackY,z));
+for(let h=0.15;h<stackH;h+=0.32){
+  box(load,1.0,0.025,0.012,M.strap,0,stackY+h, 0.592);
+  box(load,1.0,0.025,0.012,M.strap,0,stackY+h,-0.592);
+  box(load,0.012,0.025,1.2,M.strap, 0.502,stackY+h,0);
+  box(load,0.012,0.025,1.2,M.strap,-0.502,stackY+h,0);
+}
+
+// ---------- dimension lines ----------
+const dimGroup=new THREE.Group(); scene.add(dimGroup);
+const dimMat=new THREE.LineBasicMaterial({color:0xF28020});
+function dimLine(a,b,tick){
+  const pts=[new THREE.Vector3(...a),new THREE.Vector3(...b)];
+  dimGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),dimMat));
+  [a,b].forEach(p=>{const t=[new THREE.Vector3(p[0]-tick[0],p[1]-tick[1],p[2]-tick[2]),new THREE.Vector3(p[0]+tick[0],p[1]+tick[1],p[2]+tick[2])];
+    dimGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(t),dimMat));});
+}
+dimLine([-PL/2,0.02,-1.95],[PL/2,0.02,-1.95],[0,0,0.05]);
+dimLine([-1.05,0.02,-PL/2],[-1.05,0.02,PL/2],[0.05,0,0]);
+dimLine([-1.05,0.02,OUT],[-1.05,0.02,OUT+RL],[0.05,0,0]);
+dimLine([-1.05,0,-OUT-0.05],[-1.05,TOP,-OUT-0.05],[0.05,0,0]);
+dimLine([-GX+0.025,GY+0.09,0.2],[GX-0.025,GY+0.09,0.2],[0,0.03,0]);
+dimLine([-TRX,0.02,1.95],[TRX,0.02,1.95],[0,0,0.05]);
+
+// ---------- HTML overlays ----------
+const tagDefs=[
+  [1,[-0.86,T,-0.75],fixed],[2,[-0.865,0.03,0.6],fixed],[3,[IN+FW/2,TOP,-0.45],fixed],
+  [4,[-0.3,TOP,-0.35],plat],[5,[CX,T+0.05,-CX],fixed],[6,[0.3,TOP,PL/2+GAP/2],fixed],
+  [7,[0.4,0.05,OUT+0.55],fixed],[8,[GX,GY+0.03,-0.55],fixed],[9,[-0.5,TOP,0.25],plat],
+  [10,[OUT+0.13,T+0.2,0.25],fixed],[11,[1.29,1.39,0.25],fixed],[12,[OUT,T+0.02,0.45],fixed]
+];
+const dimDefs=[
+  ['1.500 mm',[0,0.02,-1.95]],['1.500 mm',[-1.05,0.02,0]],['Rampa 900 mm · 7,7°',[-1.05,0.02,OUT+RL/2]],
+  ['122 mm',[-1.05,0.07,-OUT-0.05]],['Paso libre 1.120 mm',[0,GY+0.13,0.2]],['1.800 mm',[0,0.02,1.95]]
+];
+const overlays=[];
+tagDefs.forEach(([n,p,ref])=>{const el=document.createElement('div');el.className='tag';el.textContent=n;tagsEl.appendChild(el);overlays.push({el,p:new THREE.Vector3(...p),ref,kind:'tag'});});
+dimDefs.forEach(([t,p])=>{const el=document.createElement('div');el.className='dim hide';el.textContent=t;tagsEl.appendChild(el);overlays.push({el,p:new THREE.Vector3(...p),ref:null,kind:'dim'});});
+
+// ---------- state ----------
+const state={pallet:true,explode:false,dims:false,tags:true};
+let explodeT=0;
+dimGroup.visible=false;
+
+// ---------- orbit ----------
+const target=new THREE.Vector3(0,0.55,0);
+const sph={r:6.6,th:0.75,ph:1.05};
+let goal=null;
+const VIEWS={iso:{r:6.6,th:0.75,ph:1.05,ty:0.55},front:{r:6.4,th:0,ph:1.38,ty:0.7},side:{r:6.8,th:Math.PI/2,ph:1.38,ty:0.7},top:{r:6.0,th:0.0001,ph:0.06,ty:0}};
+function applyCam(){
+  camera.position.set(target.x+sph.r*Math.sin(sph.ph)*Math.sin(sph.th),target.y+sph.r*Math.cos(sph.ph),target.z+sph.r*Math.sin(sph.ph)*Math.cos(sph.th));
+  camera.lookAt(target);
+}
+const ptrs=new Map(); let pinch0=0;
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});goal=null;
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);}});
+canvas.addEventListener('pointermove',e=>{
+  if(!ptrs.has(e.pointerId))return;const prev=ptrs.get(e.pointerId);
+  if(ptrs.size===1){sph.th-=(e.clientX-prev.x)*0.008;sph.ph=Math.min(1.52,Math.max(0.06,sph.ph-(e.clientY-prev.y)*0.008));}
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0){sph.r=Math.min(12,Math.max(1.6,sph.r*pinch0/d));}pinch0=d;}
+});
+['pointerup','pointercancel'].forEach(t=>canvas.addEventListener(t,e=>{ptrs.delete(e.pointerId);pinch0=0;}));
+canvas.addEventListener('wheel',e=>{e.preventDefault();goal=null;sph.r=Math.min(12,Math.max(1.6,sph.r*(1+e.deltaY*0.001)));},{passive:false});
+
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-view]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+  const v=VIEWS[b.dataset.view];
+  // shortest angle
+  let th=v.th; while(th-sph.th>Math.PI)th-=2*Math.PI; while(th-sph.th<-Math.PI)th+=2*Math.PI;
+  goal={r:v.r,th,ph:v.ph,ty:v.ty};
+  if(reduce){Object.assign(sph,{r:goal.r,th:goal.th,ph:goal.ph});target.y=goal.ty;goal=null;}
+}));
+document.querySelectorAll('[data-toggle]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.toggle; state[k]=!state[k]; b.setAttribute('aria-pressed',String(state[k]));
+  load.visible=state.pallet; dimGroup.visible=state.dims;
+}));
+
+// ---------- resize / loop ----------
+function resize(){
+  const w=stage.clientWidth,h=stage.clientHeight;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize',resize); resize();
+
+const v=new THREE.Vector3();
+const ray=new THREE.Raycaster(); const solids=[];
+scene.traverse(o=>{if(o.isMesh&&o!==floor)solids.push(o);});
+const wp=new THREE.Vector3();
+function frame(){
+  if(goal){
+    const k=0.12;
+    sph.r+=(goal.r-sph.r)*k; sph.th+=(goal.th-sph.th)*k; sph.ph+=(goal.ph-sph.ph)*k; target.y+=(goal.ty-target.y)*k;
+    if(Math.abs(goal.th-sph.th)<1e-3&&Math.abs(goal.ph-sph.ph)<1e-3&&Math.abs(goal.r-sph.r)<1e-3)goal=null;
+  }
+  const tgt=state.explode?1:0;
+  explodeT+= reduce ? (tgt-explodeT) : (tgt-explodeT)*0.1;
+  plat.position.y=explodeT*0.55;
+  rampA.position.z=OUT+explodeT*0.35; rampB.position.z=-OUT-explodeT*0.35;
+  guides.position.y=explodeT*0.85;
+  applyCam();
+  renderer.render(scene,camera);
+
+  const w=stage.clientWidth,h=stage.clientHeight;
+  overlays.forEach(o=>{
+    const show=o.kind==='tag'?state.tags:state.dims;
+    if(!show){o.el.classList.add('hide');return;}
+    v.copy(o.p);
+    if(o.ref===plat) v.y+=plat.position.y;
+    if(o.kind==='tag'){
+      if([7].includes(+o.el.textContent)) v.z+=explodeT*0.35;
+      if(+o.el.textContent===8) v.y+=guides.position.y;
+    }
+    wp.copy(v); v.project(camera);
+    if(v.z>1){o.el.classList.add('hide');return;}
+    if(o.kind==='tag'){
+      ray.setFromCamera({x:v.x,y:v.y},camera);
+      const hit=ray.intersectObjects(solids.filter(m=>m.visible&&m.parent.visible),false)[0];
+      const dist=camera.position.distanceTo(wp);
+      o.el.style.opacity=(hit&&hit.distance<dist-0.04)?'0.35':'1';
+    }
+    o.el.classList.remove('hide');
+    o.el.style.left=((v.x+1)/2*w)+'px'; o.el.style.top=((1-v.y)/2*h)+'px';
+  });
+  requestAnimationFrame(frame);
+}
+frame();
+})();
+</script>
+</body>
+</html>
